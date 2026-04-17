@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <base target="_top">
+    <title>KIBA</title>
+    <!-- Style -->
+    <?!= include('style'); ?>
+
+    <script>
+      let barangKIB = null;
+      let asalUsulKIBA = null;
+      function loadData() {
+        renderDataKIBA(JSON.parse('<?= data ?>'));
+        barangKIB = JSON.parse('<?= barangKIB ?>');
+        asalUsulData = JSON.parse('<?= asalUsulData ?>');
+        console.log(asalUsulData);
+        
+        const editJenisBarangSelect = document.getElementById('editJenisBarang');
+        const jenisBarangSelect = document.getElementById('jenisBarang');
+        // const editKodeBarangSelect = document.getElementById('editKodeBarang');
+        const barangSelect = document.getElementById('barang');
+        const editBarangSelect = document.getElementById('editBarang');
+        barangKIB.forEach(item => {
+          const option = document.createElement('option');
+          option.value = item[1];
+          option.textContent = item[1];
+          option.setAttribute('data-kode', item[0]);
+          barangSelect.appendChild(option);
+        });
+        barangKIB.forEach(item => {
+          const option = document.createElement('option');
+          option.value = item[1];
+          option.textContent = item[1];
+          option.setAttribute('data-kode', item[0]);
+          editBarangSelect.appendChild(option);
+        });
+
+        const asalUsulSelect = document.getElementById('asalUsul');
+        const editAsalUsulSelect = document.getElementById('editAsalUsul');
+        asalUsulData.forEach(item => {
+          const option = document.createElement('option');
+          option.value = item[1];
+          option.textContent = item[1];
+          asalUsulSelect.appendChild(option);
+        })
+        asalUsulData.forEach(item => {
+          const option = document.createElement('option');
+          option.value = item[1];
+          option.textContent = item[1];
+          editAsalUsulSelect.appendChild(option);
+        })
+
+        barangSelect.addEventListener('change', function () {
+          const selectedOption = this.selectedOptions[0];
+          const selectedKode = selectedOption.value;
+          const kelompokSelect = document.getElementById('kelompok'); 
+          kelompokSelect.innerHTML = "";
+          updateKelompok(selectedKode);
+        });
+
+        editBarangSelect.addEventListener('change', function () {
+          const selectedOption = this.selectedOptions[0];
+          const selectedKode = selectedOption.value; 
+          const editKelompokSelect = document.getElementById('editKelompok'); 
+          editKelompokSelect.innerHTML = "";
+          updateEditKelompok(selectedKode);
+        });
+
+        
+      }
+
+      function updateEditKelompok(selectedKode) {
+        const editKelompokSelect = document.getElementById('editKelompok'); 
+        google.script.run.withSuccessHandler((data) => {
+          console.log(data)
+          data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item;
+            option.textContent = item;
+            editKelompokSelect.appendChild(option);
+          })
+
+          editKelompokSelect.addEventListener('change', function () {
+            const selectedOption = this.selectedOptions[0];
+            const selectedValue = selectedOption.value; 
+            const editSubKelompokSelect = document.getElementById('editSubKelompok'); 
+            editSubKelompokSelect.innerHTML = "";
+            updateEditSubKelompok(selectedValue);
+          });
+          
+        }).getKelompokByBarangKIB(<?= kibType ?>, selectedKode);
+      }
+
+      function updateEditSubKelompok(selectedValue) {
+        const editSubKelompokSelect = document.getElementById('editSubKelompok'); 
+        google.script.run.withSuccessHandler((data) => {
+          console.log(data)
+          data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item;
+            option.textContent = item;
+            editSubKelompokSelect.appendChild(option);
+          })
+
+          editSubKelompokSelect.addEventListener('change', function () {
+            const selectedOption = this.selectedOptions[0];
+            const selectedValue = selectedOption.value; 
+            const editJenisBarangSelect = document.getElementById('editJenisBarang'); 
+            editJenisBarangSelect.innerHTML = "";
+            updateEditJenisBarang(selectedValue);
+          });
+          
+        }).getSubKelompokByKelompokKIB(<?= kibType ?>, selectedValue);
+      }
+
+      function updateEditJenisBarang(selectedValue) {
+        const editJenisBarangSelect = document.getElementById('editJenisBarang'); 
+        google.script.run.withSuccessHandler((data) => {
+          console.log(data)
+          data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.nama;
+            option.textContent = item.nama;
+            option.setAttribute('data-kode', item.kode);
+            editJenisBarangSelect.appendChild(option);
+          })
+
+          editJenisBarangSelect.addEventListener('change', function () {
+            const selectedOption = this.selectedOptions[0];
+            const selectedKode = selectedOption.getAttribute('data-kode'); 
+            updateEditKodeBarang(selectedKode);
+          });
+          
+        }).getJenisBySubKelompokKIB(<?= kibType ?>, selectedValue);
+      }
+
+      function updateEditKodeBarang(jenisBarangCode) {
+        const editKodeBarangSelect = document.getElementById('editKodeBarang');
+        editKodeBarangSelect.value = jenisBarangCode; 
+      }
+
+      function updateKelompok(selectedKode) {
+        const kelompokSelect = document.getElementById('kelompok');
+        google.script.run.withSuccessHandler((data) => {
+          console.log(data)
+          data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item;
+            option.textContent = item;
+            kelompokSelect.appendChild(option);
+          })
+
+          kelompokSelect.addEventListener('change', function () {
+            const selectedOption = this.selectedOptions[0];
+            const selectedValue = selectedOption.value; 
+            const subKelompokSelect = document.getElementById('subKelompok'); 
+            subKelompokSelect.innerHTML = "";
+            updateSubKelompok(selectedValue);
+          });
+          
+        }).getKelompokByBarangKIB(<?= kibType ?>, selectedKode);
+      }
+
+      function updateSubKelompok(selectedValue) {
+        const subKelompokSelect = document.getElementById('subKelompok');
+        google.script.run.withSuccessHandler((data) => {
+          console.log(data)
+          data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item;
+            option.textContent = item;
+            subKelompokSelect.appendChild(option);
+          })
+
+          subKelompokSelect.addEventListener('change', function () {
+            const selectedOption = this.selectedOptions[0];
+            const selectedValue = selectedOption.value; 
+            const jenisBarangSelect = document.getElementById('jenisBarang'); 
+            jenisBarangSelect.innerHTML = "";
+            updateJenisBarang(selectedValue);
+          });
+          
+        }).getSubKelompokByKelompokKIB(<?= kibType ?>, selectedValue);
+      }
+
+      function updateJenisBarang(selectedValue) {
+        const jenisBarangSelect = document.getElementById('jenisBarang');
+        google.script.run.withSuccessHandler((data) => {
+          console.log(data)
+          data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.nama;
+            option.textContent = item.nama;
+            option.setAttribute('data-kode', item.kode);
+            jenisBarangSelect.appendChild(option);
+          })
+
+          jenisBarangSelect.addEventListener('change', function () {
+            const selectedOption = this.selectedOptions[0];
+            const selectedKode = selectedOption.getAttribute('data-kode'); 
+            updateKodeBarang(selectedKode);
+          });
+          
+        }).getJenisBySubKelompokKIB(<?= kibType ?>, selectedValue);
+      }
+
+      function updateKodeBarang(jenisBarangCode) {
+        const kodeBarangSelect = document.getElementById('kodeBarang');
+        kodeBarangSelect.value = jenisBarangCode; 
+      }
+
+      function renderDataKIBA(data) {
+        const table = $('#kibaTable').DataTable({
+                      responsive: true,
+                      lengthMenu: [5, 10, 25, 50],
+                      searching: true,
+                      paging: true,
+                      destroy: true,
+                      scrollX: true,
+                      columnDefs: [
+                        {
+                          targets: 1, // Kolom "Jenis Barang"
+                          render: function (data, type, row) {
+                            return `<span title="${data}">${data.substring(0, 20)}...</span>`;
+                          },
+                        },
+                      ],
+                    });
+
+        table.clear();
+
+        // Menambahkan data ke tabel
+        data.forEach((item) => {
+          table.row.add([
+            item.no,
+            item.jenis_barang,
+            item.kode_barang,
+            item.register,
+            item.tanggal_pengadaan,
+            item.asal_usul,
+            item.letak,
+            item.kondisi,
+            item.no_sertifikat,
+            item.luas_m2,
+            item.harga_per_meter,
+            item.jumlah_harga,
+            item.keterangan,
+            item.last_update,
+            `
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editKIBAForm" onclick="editData(${item.no})">
+              <i class="fa fa-pen-to-square"></i> 
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="deleteData(${item.no})">
+              <i class="fa fa-trash"></i> 
+            </button>
+            `,
+          ]);
+        });
+
+        table.draw();
+
+        // Event listener untuk toggle kolom
+        $('#applyFilterBtn').on('click', function() {
+          const table = $('#kibaTable').DataTable();  // Menyimpan referensi ke tabel
+
+          // Menyembunyikan atau menampilkan kolom berdasarkan checkbox
+          $('.toggle-column').each(function() {
+            const column = table.column($(this).val());
+            if ($(this).prop('checked')) {
+              column.visible(true); // Tampilkan kolom
+            } else {
+              column.visible(false); // Sembunyikan kolom
+            }
+          });
+
+          // Menutup modal setelah filter diterapkan
+          $('#filterModal').modal('hide');
+        });
+      }
+
+
+      // Submit new data
+      function submitAddForm(event) {
+        event.preventDefault(); // Mencegah form untuk submit secara default
+
+        // Ambil data dari form
+        const jenisBarang = document.getElementById('jenisBarang').value;
+        const kodeBarang = document.getElementById('kodeBarang').value;
+        const jumlahBarang = document.getElementById('jumlahBarang').value;
+        const asalUsul = document.getElementById('asalUsul').value;
+        const luasM2 = document.getElementById('luasM2').value;
+        const keterangan = document.getElementById('keterangan').value;
+        const tanggalPengadaan = document.getElementById('tanggalPengadaan').value;
+        const tanggalPenerimaan = document.getElementById('tanggalPenerimaan').value;
+        const letak = document.getElementById('letak').value;
+        const kondisi = document.getElementById('kondisi').value;
+        const noSertifikat = document.getElementById('noSertifikat').value;
+        const hargaPerMeter = document.getElementById('hargaPerMeter').value;
+        const jumlahHarga = document.getElementById('jumlahHarga').value;
+        const penggunaan = document.getElementById('penggunaan').value;
+
+        // Validasi sederhana
+        if (!jenisBarang || !kodeBarang || !jumlahBarang || !asalUsul || !luasM2 || !keterangan || !tanggalPengadaan || !tanggalPenerimaan || !letak || !kondisi || !noSertifikat || !hargaPerMeter || !jumlahHarga) {
+          alert('Semua field harus diisi!');
+          return;
+        }
+
+        // Kirim data ke backend menggunakan google.script.run
+        google.script.run.withSuccessHandler((data) => {
+          renderDataKIBA(JSON.parse(data));
+          // Reset form setelah sukses
+          document.getElementById('addKibaForm').reset();
+          // Tutup modal setelah sukses
+          const addModal = bootstrap.Modal.getInstance(document.getElementById('addModal'));
+          addModal.hide();
+          // Panggil fungsi untuk memuat data barang setelah berhasil menambahkan data
+          
+        }).addKIBA({
+          jenis_barang: jenisBarang,
+          kode_barang: kodeBarang,
+          jumlah_barang: jumlahBarang,
+          asal_usul: asalUsul,
+          luas_m2: luasM2,
+          keterangan: keterangan,
+          tanggal_pengadaan: tanggalPengadaan,
+          tanggal_penerimaan: tanggalPenerimaan,
+          letak: letak,
+          penggunaan: penggunaan,
+          kondisi: kondisi,
+          nomer_sertifikat: noSertifikat,
+          harga_per_meter: hargaPerMeter,
+          jumlah_harga: jumlahHarga
+        }, <?= modelType ?>);
+      }
+
+      function editData(no) {
+        document.getElementById('editKIBAForm').dataset.no = no;
+        google.script.run.withSuccessHandler((data) => {
+          const parsedData = JSON.parse(data);
+          console.log(parsedData);
+          // Isi data ke dalam form edit
+          const selectElement = document.getElementById('editJenisBarang');
+          for (let i = 0; i < selectElement.options.length; i++) {
+            const option = selectElement.options[i];
+
+            // Jika nilai opsi sama dengan nilai yang dicari, pilih opsi tersebut
+            if (option.value === parsedData[1]) {
+              selectElement.selectedIndex = i;
+              break;
+            }
+          }
+          // document.getElementById('editJenisBarang').value = parsedData[1];
+          document.getElementById('editKodeBarang').value = parsedData[2];
+          document.getElementById('editRegister').value = parsedData[3];
+          document.getElementById('editTanggalPengadaan').value = new Date(parsedData[4]).toISOString().split('T')[0];
+          document.getElementById('editTanggalPenerimaan').value = new Date(parsedData[5]).toISOString().split('T')[0];
+          const asalUsulElement = document.getElementById('editAsalUsul');
+          for (let i = 0; i < asalUsulElement.options.length; i++) {
+            const option = asalUsulElement.options[i];
+
+            // Jika nilai opsi sama dengan nilai yang dicari, pilih opsi tersebut
+            if (option.value === parsedData[6]) {
+              asalUsulElement.selectedIndex = i;
+              break;
+            }
+          }
+          // document.getElementById('editAsalUsul').value = parsedData[6];
+          document.getElementById('editLetak').value = parsedData[7];
+          document.getElementById('editPenggunaan').value = parsedData[8];
+          document.getElementById('editKondisi').value = parsedData[9];
+          document.getElementById('editNoSertifikat').value = parsedData[10];
+          document.getElementById('editLuasM2').value = parsedData[11];
+          document.getElementById('editHargaPerMeter').value = parsedData[12];
+          document.getElementById('editJumlahHarga').value = parsedData[13];
+          document.getElementById('editKeterangan').value = parsedData[14];
+
+          // Tampilkan modal edit
+          const editModal = bootstrap.Modal.getInstance(document.getElementById('editKIBAForm'));
+          editModal.show();
+
+        }).getKIBAbyNo(no,<?= modelType ?>);
+      }
+
+      function submitEditForm(event) {
+        const no = document.getElementById('editKIBAForm').dataset.no;
+        event.preventDefault();
+
+        const data = {
+          no: no,
+          jenis_barang: document.getElementById('editJenisBarang').value,
+          kode_barang: document.getElementById('editKodeBarang').value,
+          tanggal_pengadaan: document.getElementById('editTanggalPengadaan').value,
+          tanggal_penerimaan: document.getElementById('editTanggalPenerimaan').value,
+          asal_usul: document.getElementById('editAsalUsul').value,
+          letak: document.getElementById('editLetak').value,
+          penggunaan: document.getElementById('editPenggunaan').value,
+          kondisi: document.getElementById('editKondisi').value,
+          nomer_sertifikat: document.getElementById('editNoSertifikat').value,
+          luas_m2: document.getElementById('editLuasM2').value,
+          harga_per_meter: document.getElementById('editHargaPerMeter').value,
+          jumlah_harga: document.getElementById('editJumlahHarga').value,
+          keterangan: document.getElementById('editKeterangan').value,
+        };
+
+        google.script.run.withSuccessHandler((data) => {
+          const editModal = bootstrap.Modal.getInstance(document.getElementById('editKIBAForm'));
+          editModal.hide();
+          renderDataKIBA(JSON.parse(data));
+        }).updateKIBA(data, <?= modelType ?>); // Panggil server-side untuk menyimpan data
+      }
+
+      function deleteData(no) {
+        const confirmed = confirm(`Are you sure you want to delete No: ${no}?`);
+        if (confirmed) {
+          google.script.run.withSuccessHandler((data) => {
+            renderDataKIBA(JSON.parse(data));
+          }).deleteKIBA(no, <?= modelType ?>);
+        }
+      }
+
+      window.onload = function () {
+          loadData();
+      };
+      
+      document.addEventListener('DOMContentLoaded', function () {
+        const hargaPerMeterInput = document.getElementById('hargaPerMeter');
+        const luasM2Input = document.getElementById('luasM2');
+        const jumlahHargaInput = document.getElementById('jumlahHarga');
+
+        // Fungsi untuk menghitung jumlah harga
+        function hitungJumlahHarga() {
+          const hargaPerMeter = parseFloat(hargaPerMeterInput.value) || 0; // Default ke 0 jika kosong
+          const luasM2 = parseFloat(luasM2Input.value) || 0; // Default ke 0 jika kosong
+
+          // Hitung hasil perkalian
+          const jumlahHarga = hargaPerMeter * luasM2;
+
+          // Isi ke input jumlahHarga
+          jumlahHargaInput.value = jumlahHarga.toFixed(2); 
+        }
+
+        // Tambahkan event listener pada kedua input untuk menghitung ulang ketika salah satu berubah
+        hargaPerMeterInput.addEventListener('input', hitungJumlahHarga);
+        luasM2Input.addEventListener('input', hitungJumlahHarga);
+      });
+    </script>
+  </head>
+  <body id="bodybackground">
+    <!-- Navbar -->
+    <?!= include('NavBar'); ?>
+
+    <!-- End Navbar -->
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+      <div class="d-flex justify-content-center mb-4">
+        <h1>Daftar KIB-A (<?= modelType ?>)</h1>
+      </div>
+      <div class="d-flex justify-content-between mb-4">
+        <button class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#filterModal">
+          <i class="fa fa-filter"></i> Filter Kolom
+        </button>
+        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addModal" style="padding: 0.5rem 0.8rem;">
+          <i class="fa fa-plus"></i> Tambah Data
+        </button>
+      </div>
+
+      
+
+      <!-- Modal Filter Kolom -->
+      <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="filterModalLabel">Filter Kolom</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="0" id="column-0" checked>
+                <label class="form-check-label" for="column-0">No</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="1" id="column-1" checked>
+                <label class="form-check-label" for="column-1">Jenis Barang</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="2" id="column-2" checked>
+                <label class="form-check-label" for="column-2">Kode Barang</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="3" id="column-3" checked>
+                <label class="form-check-label" for="column-3">Register</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="4" id="column-4" checked>
+                <label class="form-check-label" for="column-4">Tanggal Pengadaan</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="5" id="column-5" checked>
+                <label class="form-check-label" for="column-5">Asal Usul</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="6" id="column-6" checked>
+                <label class="form-check-label" for="column-6">Letak</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="7" id="column-7" checked>
+                <label class="form-check-label" for="column-7">Kondisi</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="8" id="column-8" checked>
+                <label class="form-check-label" for="column-8">No Sertifikat</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="9" id="column-9" checked>
+                <label class="form-check-label" for="column-9">Luas m2</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="10" id="column-10" checked>
+                <label class="form-check-label" for="column-10">Harga /m2</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="11" id="column-11" checked>
+                <label class="form-check-label" for="column-11">Jumlah Harga</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="12" id="column-12" checked>
+                <label class="form-check-label" for="column-12">Keterangan</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="13" id="column-13" checked>
+                <label class="form-check-label" for="column-13">Last Update</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="14" id="column-14" checked>
+                <label class="form-check-label" for="column-14">Aksi</label>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+              <button type="button" class="btn btn-primary" id="applyFilterBtn">Terapkan Filter</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <table id="kibaTable" class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Jenis Barang</th>
+            <th>Kode Barang</th>
+            <th>Register</th>
+            <th>Tanggal Pengadaan</th>
+            <th>Asal Usul</th>
+            <th>Letak</th>
+            <th>Kondisi</th>
+            <th>No Sertifikat</th>
+            <th>Luas m2</th>
+            <th>Harga /m2</th>
+            <th>Jumlah Harga</th>
+            <th>Keterangan</th>
+            <th>Last Update</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="kibaTableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Modal Add Data -->
+    <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addModalLabel">Tambah Data KIB-A</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="addKibaForm" onsubmit="submitAddForm(event)">
+              <div class="row">
+                <!-- Kolom Kiri -->
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="barang" class="form-label">Barang</label>
+                    <select class="form-select" id="barang" required>
+                      <option value="" disabled selected>Barang</option>
+                      <!-- Options will be populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="kelompok" class="form-label">Kelompok</label>
+                    <select class="form-select" id="kelompok" required>
+                      <option value="" disabled selected>Kelompok</option>
+                      <!-- Options will be populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="subKelompok" class="form-label">Sub Kelompok</label>
+                    <select class="form-select" id="subKelompok" required>
+                      <option value="" disabled selected>Sub Kelompok</option>
+                      <!-- Options will be populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="jenisBarang" class="form-label">Jenis Barang</label>
+                    <select class="form-select" id="jenisBarang" required>
+                      <option value="" disabled selected>Pilih Jenis Barang</option>
+                      <!-- Options will be populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="kodeBarang" class="form-label">Kode Barang</label>
+                    <input type="text" class="form-control" id="kodeBarang" readonly required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="register" class="form-label">Jumlah Barang</label>
+                    <input type="number" min="1" step="1" class="form-control" id="jumlahBarang" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="asalUsul" class="form-label">Asal Usul</label>
+                    <select class="form-select" id="asalUsul" required>
+                      <option value="" disabled selected>Pilih Asal Usul Barang</option>
+                      <!-- Options will be populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="luasM2" class="form-label">Luas (m²)</label>
+                    <input type="number" class="form-control" id="luasM2" required>
+                  </div>
+                </div>
+
+                <!-- Kolom Kanan -->
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="keterangan" class="form-label">Keterangan</label>
+                    <input type="text" class="form-control" id="keterangan" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="penggunaan" class="form-label">Penggunaan</label>
+                    <input type="text" class="form-control" id="penggunaan" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="tanggalPengadaan" class="form-label">Tanggal Pengadaan</label>
+                    <input type="date" class="form-control" id="tanggalPengadaan" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="tanggalPenerimaan" class="form-label">Tanggal Penerimaan</label>
+                    <input type="date" class="form-control" id="tanggalPenerimaan" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="letak" class="form-label">Letak</label>
+                    <input type="text" class="form-control" id="letak" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="kondisi" class="form-label">Kondisi</label>
+                    <input type="text" class="form-control" id="kondisi" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="noSertifikat" class="form-label">No Sertifikat</label>
+                    <input type="text" class="form-control" id="noSertifikat" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="hargaPerMeter" class="form-label">Harga per Meter</label>
+                    <input type="number" class="form-control" id="hargaPerMeter" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="jumlahHarga" class="form-label">Jumlah Harga</label>
+                    <input type="number" class="form-control" readonly id="jumlahHarga" required>
+                  </div>
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- Modal Edit Data -->
+    <div class="modal fade" id="editKIBAForm" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editModalLabel">Edit Data KIB-A</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="editKibaForm" onsubmit="submitEditForm(event)">
+              <div class="row">
+                <!-- Kolom Kiri -->
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="barang" class="form-label">Barang</label>
+                    <select class="form-select" id="editBarang" required>
+                      <option value="" disabled selected>Barang</option>
+                      <!-- Options will be populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="kelompok" class="form-label">Kelompok</label>
+                    <select class="form-select" id="editKelompok" required>
+                      <option value="" disabled selected>Kelompok</option>
+                      <!-- Options will be populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="subKelompok" class="form-label">Sub Kelompok</label>
+                    <select class="form-select" id="editSubKelompok" required>
+                      <option value="" disabled selected>Sub Kelompok</option>
+                      <!-- Options will be populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="editJenisBarang" class="form-label">Jenis Barang</label>
+                    <select class="form-select" id="editJenisBarang" required>
+                      <option value="" disabled selected>Pilih Jenis Barang</option>
+                      <!-- Options will be populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="editKodeBarang" class="form-label">Kode Barang</label>
+                    <input type="text" class="form-control" id="editKodeBarang" readonly required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="editRegister" class="form-label">Register</label>
+                    <input type="number" min="1" step="1" class="form-control" id="editRegister" readonly required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="editAsalUsul" class="form-label">Asal Usul</label>
+                    <select class="form-select" id="editAsalUsul" required>
+                      <option value="" disabled selected>Pilih Asal Usul Barang</option>
+                      <!-- Options will be populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="editLuasM2" class="form-label">Luas (m²)</label>
+                    <input type="number" class="form-control" id="editLuasM2" required>
+                  </div>
+                </div>
+
+                <!-- Kolom Kanan -->
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="editKeterangan" class="form-label">Keterangan</label>
+                    <input type="text" class="form-control" id="editKeterangan" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="editPenggunaan" class="form-label">Penggunaan</label>
+                    <input type="text" class="form-control" id="editPenggunaan" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="editTanggalPengadaan" class="form-label">Tanggal Pengadaan</label>
+                    <input type="date" class="form-control" id="editTanggalPengadaan" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="editTanggalPenerimaan" class="form-label">Tanggal Penerimaan</label>
+                    <input type="date" class="form-control" id="editTanggalPenerimaan" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="editLetak" class="form-label">Letak</label>
+                    <input type="text" class="form-control" id="editLetak" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="editKondisi" class="form-label">Kondisi</label>
+                    <input type="text" class="form-control" id="editKondisi" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="editNoSertifikat" class="form-label">No Sertifikat</label>
+                    <input type="text" class="form-control" id="editNoSertifikat" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="editHargaPerMeter" class="form-label">Harga per Meter</label>
+                    <input type="number" class="form-control" id="editHargaPerMeter" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="editJumlahHarga" class="form-label">Jumlah Harga</label>
+                    <input type="number" class="form-control" readonly id="editJumlahHarga" required>
+                  </div>
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+    <!-- Javascript -->
+    <?!= include('javascript'); ?>
+  </body>
+</html>

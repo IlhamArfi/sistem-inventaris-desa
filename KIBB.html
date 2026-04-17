@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <base target="_top">
+    <title>KIBB</title>
+    <!-- Style -->
+    <?!= include('style'); ?>
+
+    <script>
+      let jenisKIB = null;
+      let asalUsulKIBB = null;
+      function loadData() {
+        renderDataKIBB(JSON.parse('<?= data ?>'));
+        barangKIB = JSON.parse('<?= barangKIB ?>');
+        asalUsulData = JSON.parse('<?= asalUsulData ?>');
+        console.log(asalUsulData);
+        
+        const editJenisBarangSelect = document.getElementById('editJenisBarang');
+        const editKodeBarangSelect = document.getElementById('editKodeBarang');
+        const jenisBarangSelect = document.getElementById('jenisBarang');
+        const barangSelect = document.getElementById('barang');
+        const editBarangSelect = document.getElementById('editBarang');
+        barangKIB.forEach(item => {
+          const option = document.createElement('option');
+          option.value = item[1];
+          option.textContent = item[1];
+          option.setAttribute('data-kode', item[0]);
+          barangSelect.appendChild(option);
+        });
+        barangKIB.forEach(item => {
+          const option = document.createElement('option');
+          option.value = item[1];
+          option.textContent = item[1];
+          option.setAttribute('data-kode', item[0]);
+          editBarangSelect.appendChild(option);
+        });
+
+        const asalUsulSelect = document.getElementById('asalUsul');
+        const editAsalUsulSelect = document.getElementById('editAsalUsul');
+        asalUsulData.forEach(item => {
+          const option = document.createElement('option');
+          option.value = item[1];
+          option.textContent = item[1];
+          asalUsulSelect.appendChild(option);
+        })
+        asalUsulData.forEach(item => {
+          const option = document.createElement('option');
+          option.value = item[1];
+          option.textContent = item[1];
+          editAsalUsulSelect.appendChild(option);
+        })
+
+        barangSelect.addEventListener('change', function () {
+          const selectedOption = this.selectedOptions[0];
+          const selectedKode = selectedOption.value;
+          const kelompokSelect = document.getElementById('kelompok'); 
+          kelompokSelect.innerHTML = "";
+          updateKelompok(selectedKode);
+        });
+
+        editBarangSelect.addEventListener('change', function () {
+          const selectedOption = this.selectedOptions[0];
+          const selectedKode = selectedOption.value; 
+          const editKelompokSelect = document.getElementById('editKelompok'); 
+          editKelompokSelect.innerHTML = "";
+          console.log(selectedKode)
+          updateEditKelompok(selectedKode);
+        });
+      }
+
+        function updateEditKelompok(selectedKode) {
+        const editKelompokSelect = document.getElementById('editKelompok'); 
+        google.script.run.withSuccessHandler((data) => {
+            console.log(data)
+            data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item;
+            option.textContent = item;
+            editKelompokSelect.appendChild(option);
+            })
+
+            editKelompokSelect.addEventListener('change', function () {
+            const selectedOption = this.selectedOptions[0];
+            const selectedValue = selectedOption.value; 
+            const editSubKelompokSelect = document.getElementById('editSubKelompok'); 
+            editSubKelompokSelect.innerHTML = "";
+            updateEditSubKelompok(selectedValue);
+            });
+            
+        }).getKelompokByBarangKIB(<?= kibType ?>, selectedKode);
+        }
+
+        function updateEditSubKelompok(selectedValue) {
+        const editSubKelompokSelect = document.getElementById('editSubKelompok'); 
+        google.script.run.withSuccessHandler((data) => {
+            console.log(data)
+            data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item;
+            option.textContent = item;
+            editSubKelompokSelect.appendChild(option);
+            })
+
+            editSubKelompokSelect.addEventListener('change', function () {
+            const selectedOption = this.selectedOptions[0];
+            const selectedValue = selectedOption.value; 
+            const editJenisBarangSelect = document.getElementById('editJenisBarang'); 
+            editJenisBarangSelect.innerHTML = "";
+            updateEditJenisBarang(selectedValue);
+            });
+            
+        }).getSubKelompokByKelompokKIB(<?= kibType ?>, selectedValue);
+        }
+
+        function updateEditJenisBarang(selectedValue) {
+        const editJenisBarangSelect = document.getElementById('editJenisBarang'); 
+        google.script.run.withSuccessHandler((data) => {
+            console.log(data)
+            data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.nama;
+            option.textContent = item.nama;
+            option.setAttribute('data-kode', item.kode);
+            editJenisBarangSelect.appendChild(option);
+            })
+
+            editJenisBarangSelect.addEventListener('change', function () {
+            const selectedOption = this.selectedOptions[0];
+            const selectedKode = selectedOption.getAttribute('data-kode'); 
+            updateEditKodeBarang(selectedKode);
+            });
+            
+        }).getJenisBySubKelompokKIB(<?= kibType ?>, selectedValue);
+        }
+
+        function updateEditKodeBarang(jenisBarangCode) {
+        const editKodeBarangSelect = document.getElementById('editKodeBarang');
+        editKodeBarangSelect.value = jenisBarangCode; 
+        }
+
+        function updateKelompok(selectedKode) {
+          const kelompokSelect = document.getElementById('kelompok');
+          google.script.run.withSuccessHandler((data) => {
+              console.log(data)
+              data.forEach(item => {
+              const option = document.createElement('option');
+              option.value = item;
+              option.textContent = item;
+              kelompokSelect.appendChild(option);
+              })
+
+              kelompokSelect.addEventListener('change', function () {
+              const selectedOption = this.selectedOptions[0];
+              const selectedValue = selectedOption.value; 
+              const subKelompokSelect = document.getElementById('subKelompok'); 
+              subKelompokSelect.innerHTML = "";
+              updateSubKelompok(selectedValue);
+              });
+              
+          }).getKelompokByBarangKIB(<?= kibType ?>, selectedKode);
+        }
+
+        function updateSubKelompok(selectedValue) {
+        const subKelompokSelect = document.getElementById('subKelompok');
+        google.script.run.withSuccessHandler((data) => {
+            console.log(data)
+            data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item;
+            option.textContent = item;
+            subKelompokSelect.appendChild(option);
+            })
+
+            subKelompokSelect.addEventListener('change', function () {
+            const selectedOption = this.selectedOptions[0];
+            const selectedValue = selectedOption.value; 
+            const jenisBarangSelect = document.getElementById('jenisBarang'); 
+            jenisBarangSelect.innerHTML = "";
+            updateJenisBarang(selectedValue);
+            });
+            
+        }).getSubKelompokByKelompokKIB(<?= kibType ?>, selectedValue);
+        }
+
+        function updateJenisBarang(selectedValue) {
+        const jenisBarangSelect = document.getElementById('jenisBarang');
+        google.script.run.withSuccessHandler((data) => {
+            console.log(data)
+            data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.nama;
+            option.textContent = item.nama;
+            option.setAttribute('data-kode', item.kode);
+            jenisBarangSelect.appendChild(option);
+            })
+
+            jenisBarangSelect.addEventListener('change', function () {
+            const selectedOption = this.selectedOptions[0];
+            const selectedKode = selectedOption.getAttribute('data-kode'); 
+            updateKodeBarang(selectedKode);
+            });
+            
+        }).getJenisBySubKelompokKIB(<?= kibType ?>, selectedValue);
+        }
+
+      function updateKodeBarang(jenisBarangCode) {
+        const kodeBarangSelect = document.getElementById('kodeBarang');
+        kodeBarangSelect.value = jenisBarangCode; 
+      }
+
+      function renderDataKIBB(data) {
+        const table = $('#kibbTable').DataTable({
+                      responsive: true,
+                      lengthMenu: [5, 10, 25, 50],
+                      searching: true,
+                      paging: true,
+                      destroy: true,
+                      scrollX: true,
+                    });
+
+        table.clear();
+
+        // Menambahkan data ke tabel
+        data.forEach((item) => {
+          console.log(item);
+          table.row.add([
+            item.no,
+            item.kode_barang,
+            item.jenis_barang,
+            item.register,
+            new Date(item.tanggal_pengadaan).toISOString().split('T')[0],
+            new Date(item.tanggal_penerimaan).toISOString().split('T')[0],
+            item.merk,
+            item.type,
+            item.ukuran,
+            item.bahan,
+            item.no_pabrik,
+            item.no_rangka,
+            item.no_mesin,
+            item.no_polisi,
+            item.no_bpkb,
+            item.kondisi,
+            item.asal_usul,
+            item.harga,
+            item.keterangan,
+            new Date(item.last_update).toISOString().split('T')[0],
+            `
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editKIBBForm" onclick="editData(${item.no})">
+              <i class="fa fa-pen-to-square"></i> 
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="deleteData(${item.no})">
+              <i class="fa fa-trash"></i> 
+            </button>
+            `,
+          ]);
+        });
+
+        table.draw();
+
+        // Event listener untuk toggle kolom
+        $('#applyFilterBtn').on('click', function() {
+          const table = $('#kibbTable').DataTable();  // Menyimpan referensi ke tabel
+
+          // Menyembunyikan atau menampilkan kolom berdasarkan checkbox
+          $('.toggle-column').each(function() {
+            const column = table.column($(this).val());
+            if ($(this).prop('checked')) {
+              column.visible(true); // Tampilkan kolom
+            } else {
+              column.visible(false); // Sembunyikan kolom
+            }
+          });
+
+          // Menutup modal setelah filter diterapkan
+          $('#filterModal').modal('hide');
+        });
+      }
+
+
+      // Submit new data
+      function submitAddForm(event) {
+        event.preventDefault(); // Mencegah form untuk submit secara default
+
+        // Ambil data dari form
+        const data = {
+          jenis_barang: document.getElementById('jenisBarang').value,
+          kode_barang: document.getElementById('kodeBarang').value,
+          jumlah_barang: document.getElementById('jumlahBarang').value,
+          tanggal_pengadaan: document.getElementById('tanggalPengadaan').value,
+          tanggal_penerimaan: document.getElementById('tanggalPenerimaan').value,
+          merk: document.getElementById('merk').value,
+          type: document.getElementById('type').value,
+          ukuran: document.getElementById('ukuran').value,
+          bahan: document.getElementById('bahan').value,
+          no_pabrik: document.getElementById('noPabrik').value,
+          no_rangka: document.getElementById('noRangka').value,
+          no_mesin: document.getElementById('noMesin').value,
+          no_polisi: document.getElementById('noPolisi').value,
+          no_bpkb: document.getElementById('noBpkb').value,
+          kondisi: document.getElementById('kondisi').value,
+          harga: document.getElementById('harga').value,
+          asal_usul: document.getElementById('asalUsul').value,
+          kondisi: document.getElementById('kondisi').value,
+          keterangan: document.getElementById('keterangan').value,
+        };
+
+        // Validasi sederhana
+        if (Object.values(data).some((value) => !value)) {
+          alert('Semua field harus diisi!');
+          return;
+        }
+
+        // Kirim data ke backend menggunakan google.script.run
+        google.script.run.withSuccessHandler((data) => {
+          renderDataKIBB(JSON.parse(data));
+          // Reset form setelah sukses
+          document.getElementById('addKibbForm').reset();
+          // Tutup modal setelah sukses
+          const addModal = bootstrap.Modal.getInstance(document.getElementById('addModal'));
+          addModal.hide();
+          // Panggil fungsi untuk memuat data barang setelah berhasil menambahkan data
+          
+        }).addKIBB(data, <?= modelType ?>);
+      }
+
+      function editData(no) {
+        document.getElementById('editKIBBForm').dataset.no = no;
+        google.script.run.withSuccessHandler((data) => {
+          const parsedData = JSON.parse(data);
+          // Isi data ke dalam form edit
+          const selectElement = document.getElementById('editJenisBarang');
+          for (let i = 0; i < selectElement.options.length; i++) {
+            const option = selectElement.options[i];
+
+            // Jika nilai opsi sama dengan nilai yang dicari, pilih opsi tersebut
+            if (option.value === parsedData[2]) {
+              selectElement.selectedIndex = i;
+              break;
+            }
+          }
+          // document.getElementById('editJenisBarang').value = parsedData[1];
+          document.getElementById('editKodeBarang').value = parsedData[1];
+          document.getElementById('editRegister').value = parsedData[3];
+          document.getElementById('editTanggalPengadaan').value = new Date(parsedData[4]).toISOString().split('T')[0];
+          document.getElementById('editTanggalPenerimaan').value = new Date(parsedData[5]).toISOString().split('T')[0];
+          const asalUsulElement = document.getElementById('editAsalUsul');
+          for (let i = 0; i < asalUsulElement.options.length; i++) {
+            const option = asalUsulElement.options[i];
+
+            // Jika nilai opsi sama dengan nilai yang dicari, pilih opsi tersebut
+            if (option.value === parsedData[16]) {
+              asalUsulElement.selectedIndex = i;
+              break;
+            }
+          }
+          document.getElementById('editMerk').value = parsedData[6];
+          document.getElementById('editType').value = parsedData[7];
+          document.getElementById('editUkuran').value = parsedData[8];
+          document.getElementById('editBahan').value = parsedData[9];
+          document.getElementById('editNoPabrik').value = parsedData[10];
+          document.getElementById('editNoRangka').value = parsedData[11];
+          document.getElementById('editNoMesin').value = parsedData[12];
+          document.getElementById('editNoPolisi').value = parsedData[13];
+          document.getElementById('editNoBpkb').value = parsedData[14];
+          document.getElementById('editKondisi').value = parsedData[15];
+          document.getElementById('editHarga').value = parsedData[17];
+          document.getElementById('editKeterangan').value = parsedData[18];
+
+          // Tampilkan modal edit
+          const editModal = bootstrap.Modal.getInstance(document.getElementById('editKIBBForm'));
+          editModal.show();
+
+        }).getKIBBbyNo(no,<?= modelType ?>);
+      }
+
+      function submitEditForm(event) {
+        const no = document.getElementById('editKIBBForm').dataset.no;
+        event.preventDefault();
+
+        const data = {
+          no: no,
+          jenis_barang: document.getElementById('editJenisBarang').value,
+          kode_barang: document.getElementById('editKodeBarang').value,
+          tanggal_pengadaan: document.getElementById('editTanggalPengadaan').value,
+          tanggal_penerimaan: document.getElementById('editTanggalPenerimaan').value,
+          asal_usul: document.getElementById('editAsalUsul').value,
+          merk: document.getElementById('editMerk').value,
+          type: document.getElementById('editType').value,
+          ukuran: document.getElementById('editUkuran').value,
+          bahan: document.getElementById('editBahan').value,
+          no_pabrik: document.getElementById('editNoPabrik').value,
+          no_rangka: document.getElementById('editNoRangka').value,
+          no_mesin: document.getElementById('editNoMesin').value,
+          no_polisi: document.getElementById('editNoPolisi').value,
+          no_bpkb: document.getElementById('editNoBpkb').value,
+          kondisi: document.getElementById('editKondisi').value,
+          harga: document.getElementById('editHarga').value,
+          keterangan: document.getElementById('editKeterangan').value,
+        };
+
+        google.script.run.withSuccessHandler((data) => {
+          const editModal = bootstrap.Modal.getInstance(document.getElementById('editKIBBForm'));
+          editModal.hide();
+          renderDataKIBB(JSON.parse(data));
+        }).updateKIBB(data, <?= modelType ?>); 
+      }
+
+      function deleteData(no) {
+        const confirmed = confirm(`Are you sure you want to delete No: ${no}?`);
+        if (confirmed) {
+          google.script.run.withSuccessHandler((data) => {
+            renderDataKIBB(JSON.parse(data));
+          }).deleteKIBB(no, <?= modelType ?>);
+        }
+      }
+
+      window.onload = function () {
+          loadData();
+      };
+      
+      document.addEventListener('DOMContentLoaded', function () {
+        const hargaPerMeterInput = document.getElementById('hargaPerMeter');
+        const luasM2Input = document.getElementById('luasM2');
+        const jumlahHargaInput = document.getElementById('jumlahHarga');
+
+        // Fungsi untuk menghitung jumlah harga
+        function hitungJumlahHarga() {
+          const hargaPerMeter = parseFloat(hargaPerMeterInput.value) || 0; // Default ke 0 jika kosong
+          const luasM2 = parseFloat(luasM2Input.value) || 0; // Default ke 0 jika kosong
+
+          // Hitung hasil perkalian
+          const jumlahHarga = hargaPerMeter * luasM2;
+
+          // Isi ke input jumlahHarga
+          jumlahHargaInput.value = jumlahHarga.toFixed(2); 
+        }
+
+        // Tambahkan event listener pada kedua input untuk menghitung ulang ketika salah satu berubah
+        hargaPerMeterInput.addEventListener('input', hitungJumlahHarga);
+        luasM2Input.addEventListener('input', hitungJumlahHarga);
+      });
+    </script>
+  </head>
+  <body id="bodybackground">
+    <!-- Navbar -->
+    <?!= include('NavBar'); ?>
+
+    <!-- End Navbar -->
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+      <div class="d-flex justify-content-center mb-4">
+        <h1>Daftar KIB-B (<?= modelType ?>)</h1>
+      </div>
+      <div class="d-flex justify-content-between mb-4">
+        <button class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#filterModal">
+          <i class="fa fa-filter"></i> Filter Kolom
+        </button>
+        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addModal" style="padding: 0.5rem 0.8rem;">
+          <i class="fa fa-plus"></i> Tambah Data
+        </button>
+      </div>
+
+      
+
+      <!-- Modal Filter Kolom -->
+      <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="filterModalLabel">Filter Kolom</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="0" id="column-0" checked>
+                <label class="form-check-label" for="column-0">No</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="1" id="column-1" checked>
+                <label class="form-check-label" for="column-1">Kode Barang</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="2" id="column-2" checked>
+                <label class="form-check-label" for="column-2">Jenis Barang</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="3" id="column-3" checked>
+                <label class="form-check-label" for="column-3">Register</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="4" id="column-4" checked>
+                <label class="form-check-label" for="column-4">Tanggal Pengadaan</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="5" id="column-5" checked>
+                <label class="form-check-label" for="column-5">Tanggal Penerimaan</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="6" id="column-6" checked>
+                <label class="form-check-label" for="column-6">Merk</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="7" id="column-7" checked>
+                <label class="form-check-label" for="column-7">Type</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="8" id="column-8" checked>
+                <label class="form-check-label" for="column-8">Ukuran</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="9" id="column-9" checked>
+                <label class="form-check-label" for="column-9">Bahan</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="10" id="column-10" checked>
+                <label class="form-check-label" for="column-10">No Pabrik</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="11" id="column-11" checked>
+                <label class="form-check-label" for="column-11">No Rangka</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="12" id="column-12" checked>
+                <label class="form-check-label" for="column-12">No Mesin</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="13" id="column-13" checked>
+                <label class="form-check-label" for="column-13">No Polisi</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="14" id="column-14" checked>
+                <label class="form-check-label" for="column-14">No BPKB</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="15" id="column-15" checked>
+                <label class="form-check-label" for="column-15">Kondisi</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="16" id="column-16" checked>
+                <label class="form-check-label" for="column-16">Asal Usul</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="17" id="column-17" checked>
+                <label class="form-check-label" for="column-17">Harga</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="18" id="column-18" checked>
+                <label class="form-check-label" for="column-18">Keterangan</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="19" id="column-19" checked>
+                <label class="form-check-label" for="column-19">Last Update</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input toggle-column" type="checkbox" value="20" id="column-20" checked>
+                <label class="form-check-label" for="column-20">Aksi</label>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+              <button type="button" class="btn btn-primary" id="applyFilterBtn">Terapkan Filter</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive-lg">
+        <table id="kibbTable" class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Kode Barang</th>
+              <th>Jenis Barang</th>
+              <th>Register</th>
+              <th>Tanggal Pengadaan</th>
+              <th>Tanggal Penerimaan</th>
+              <th>Merk</th>
+              <th>Type</th>
+              <th>Ukuran</th>
+              <th>Bahan</th>
+              <th>No Pabrik</th>
+              <th>No Rangka</th>
+              <th>No Mesin</th>
+              <th>No Polisi</th>
+              <th>No BPKB</th>
+              <th>Kondisi</th>
+              <th>Asal Usul</th>
+              <th>Harga</th>
+              <th>Keterangan</th>
+              <th>Last Update</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="kibbTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Modal Add Data -->
+    <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addModalLabel">Tambah Data KIB-B</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="addKibbForm" onsubmit="submitAddForm(event)">
+              <div class="row">
+                <!-- Kolom Kiri -->
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="barang" class="form-label">Barang</label>
+                    <select class="form-select" id="barang" required>
+                      <option value="" disabled selected>Barang</option>
+                      <!-- Options will be populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="kelompok" class="form-label">Kelompok</label>
+                    <select class="form-select" id="kelompok" required>
+                      <option value="" disabled selected>Kelompok</option>
+                      <!-- Options will be populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="subKelompok" class="form-label">Sub Kelompok</label>
+                    <select class="form-select" id="subKelompok" required>
+                      <option value="" disabled selected>Sub Kelompok</option>
+                      <!-- Options will be populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="jenisBarang" class="form-label">Jenis Barang</label>
+                    <select class="form-select" id="jenisBarang" required>
+                      <option value="" disabled selected>Pilih Jenis Barang</option>
+                      <!-- Options will be populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="kodeBarang" class="form-label">Kode Barang</label>
+                    <input type="text" class="form-control" id="kodeBarang" readonly required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="register" class="form-label">Jumlah Barang</label>
+                    <input type="number" min="1" step="1" class="form-control" id="jumlahBarang" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="asalUsul" class="form-label">Asal Usul</label>
+                    <select class="form-select" id="asalUsul" required>
+                      <option value="" disabled selected>Pilih Asal Usul Barang</option>
+                      <!-- Options will be populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="merk" class="form-label">Merk</label>
+                    <input type="text" class="form-control" id="merk" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="type" class="form-label">Type</label>
+                    <input type="text" class="form-control" id="type" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="ukuran" class="form-label">Ukuran</label>
+                    <input type="text" class="form-control" id="ukuran" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="bahan" class="form-label">Bahan</label>
+                    <input type="text" class="form-control" id="bahan" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="tanggalPengadaan" class="form-label">Tanggal Pengadaan</label>
+                    <input type="date" class="form-control" id="tanggalPengadaan" required>
+                  </div>
+                </div>
+
+                <!-- Kolom Kanan -->
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="tanggalPenerimaan" class="form-label">Tanggal Penerimaan</label>
+                    <input type="date" class="form-control" id="tanggalPenerimaan" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="noPabrik" class="form-label">No Pabrik</label>
+                    <input type="text" class="form-control" id="noPabrik" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="noRangka" class="form-label">No Rangka</label>
+                    <input type="text" class="form-control" id="noRangka" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="noMesin" class="form-label">No Mesin</label>
+                    <input type="text" class="form-control" id="noMesin" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="noPolisi" class="form-label">No Polisi</label>
+                    <input type="text" class="form-control" id="noPolisi" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="noBpkb" class="form-label">No BPKB</label>
+                    <input type="text" class="form-control" id="noBpkb" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="kondisi" class="form-label">Kondisi</label>
+                    <input type="text" class="form-control" id="kondisi" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="harga" class="form-label">Harga</label>
+                    <input type="number" class="form-control" id="harga" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="keterangan" class="form-label">Keterangan</label>
+                    <input type="text" class="form-control" id="keterangan" required>
+                  </div>
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- Modal Edit Data -->
+    <div class="modal fade" id="editKIBBForm" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editModalLabel">Edit Data KIB-A</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="editKibaForm" onsubmit="submitEditForm(event)">
+              <div class="row">
+                <!-- Kolom Kiri -->
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="barang" class="form-label">Barang</label>
+                    <select class="form-select" id="editBarang" required>
+                      <option value="" disabled selected>Barang</option>
+                      <!-- Options will be populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="kelompok" class="form-label">Kelompok</label>
+                    <select class="form-select" id="editKelompok" required>
+                      <option value="" disabled selected>Kelompok</option>
+                      <!-- Options will be populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="subKelompok" class="form-label">Sub Kelompok</label>
+                    <select class="form-select" id="editSubKelompok" required>
+                      <option value="" disabled selected>Sub Kelompok</option>
+                      <!-- Options will be populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="editJenisBarang" class="form-label">Jenis Barang</label>
+                    <select class="form-select" id="editJenisBarang" required>
+                      <option value="" disabled selected>Pilih Jenis Barang</option>
+                      <!-- Options will be populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="editKodeBarang" class="form-label">Kode Barang</label>
+                    <input type="text" class="form-control" id="editKodeBarang" readonly required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="editRegister" class="form-label">Register</label>
+                    <input type="number" min="1" step="1" class="form-control" id="editRegister" readonly required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="editAsalUsul" class="form-label">Asal Usul</label>
+                    <select class="form-select" id="editAsalUsul" required>
+                      <option value="" disabled selected>Pilih Asal Usul Barang</option>
+                      <!-- Options will be populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="merk" class="form-label">Merk</label>
+                    <input type="text" class="form-control" id="editMerk" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="type" class="form-label">Type</label>
+                    <input type="text" class="form-control" id="editType" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="ukuran" class="form-label">Ukuran</label>
+                    <input type="text" class="form-control" id="editUkuran" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="bahan" class="form-label">Bahan</label>
+                    <input type="text" class="form-control" id="editBahan" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="tanggalPengadaan" class="form-label">Tanggal Pengadaan</label>
+                    <input type="date" class="form-control" id="editTanggalPengadaan" required>
+                  </div>
+                </div>
+
+                <!-- Kolom Kanan -->
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="editTanggalPenerimaan" class="form-label">Tanggal Penerimaan</label>
+                    <input type="date" class="form-control" id="editTanggalPenerimaan" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="noPabrik" class="form-label">No Pabrik</label>
+                    <input type="text" class="form-control" id="editNoPabrik" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="noRangka" class="form-label">No Rangka</label>
+                    <input type="text" class="form-control" id="editNoRangka" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="noMesin" class="form-label">No Mesin</label>
+                    <input type="text" class="form-control" id="editNoMesin" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="noPolisi" class="form-label">No Polisi</label>
+                    <input type="text" class="form-control" id="editNoPolisi" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="noBpkb" class="form-label">No BPKB</label>
+                    <input type="text" class="form-control" id="editNoBpkb" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="kondisi" class="form-label">Kondisi</label>
+                    <input type="text" class="form-control" id="editKondisi" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="harga" class="form-label">Harga</label>
+                    <input type="number" class="form-control" id="editHarga" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="keterangan" class="form-label">Keterangan</label>
+                    <input type="text" class="form-control" id="editKeterangan" required>
+                  </div>
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+    <!-- Javascript -->
+    <?!= include('javascript'); ?>
+  </body>
+</html>
